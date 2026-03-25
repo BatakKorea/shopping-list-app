@@ -233,6 +233,12 @@
     const SUPABASE_URL = 'https://ghxggfmthahzvaapanas.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoeGdnZm10aGFoenZhYXBhbmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NDY2ODQsImV4cCI6MjA5MDAyMjY4NH0.elM9a-8g9kXJLtYvqD5TtDAgYXhTMOPe-RYObe4oeP4';
 
+    if (!window.supabase) {
+      document.getElementById('errorMsg').textContent = '오류: Supabase 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.';
+      document.getElementById('errorMsg').style.display = 'block';
+      throw new Error('Supabase CDN load failed');
+    }
+
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
