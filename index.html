@@ -185,6 +185,23 @@
       background: #fff5f5;
       border-color: #fc8181;
     }
+
+    .error-msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      border-radius: 8px;
+      color: #c53030;
+      font-size: 0.82rem;
+    }
+
+    .loading-msg {
+      text-align: center;
+      padding: 20px 0;
+      color: #a0aec0;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -207,22 +224,35 @@
     <button class="clear-btn" id="clearBtn" onclick="clearChecked()" style="display:none">
       완료된 항목 삭제
     </button>
+
+    <div class="error-msg" id="errorMsg" style="display:none"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = 'https://ghxggfmthahzvaapanas.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoeGdnZm10aGFoenZhYXBhbmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NDY2ODQsImV4cCI6MjA5MDAyMjY4NH0.elM9a-8g9kXJLtYvqD5TtDAgYXhTMOPe-RYObe4oeP4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { createClient } = window.supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let items = [];
 
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '오류: ' + msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
     async function loadItems() {
-      const { data, error } = await supabase
+      const list = document.getElementById('list');
+      list.innerHTML = '<li style="background:none;border:none;"><div class="loading-msg">불러오는 중...</div></li>';
+      const { data, error } = await db
         .from('shopping_items')
         .select('*')
         .order('created_at', { ascending: false });
-      if (error) { console.error(error); return; }
+      if (error) { showError(error.message); return; }
       items = data;
       render();
     }
@@ -265,44 +295,44 @@
       if (!text) { input.focus(); return; }
       input.value = '';
       input.focus();
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('shopping_items')
         .insert({ text, checked: false })
         .select()
         .single();
-      if (error) { console.error(error); return; }
+      if (error) { showError(error.message); return; }
       items.unshift(data);
       render();
     }
 
     async function toggleItem(id, checked) {
-      const { error } = await supabase
+      const { error } = await db
         .from('shopping_items')
         .update({ checked })
         .eq('id', id);
-      if (error) { console.error(error); return; }
+      if (error) { showError(error.message); return; }
       const item = items.find(i => i.id === id);
       if (item) item.checked = checked;
       render();
     }
 
     async function deleteItem(id) {
-      const { error } = await supabase
+      const { error } = await db
         .from('shopping_items')
         .delete()
         .eq('id', id);
-      if (error) { console.error(error); return; }
+      if (error) { showError(error.message); return; }
       items = items.filter(i => i.id !== id);
       render();
     }
 
     async function clearChecked() {
       const checkedIds = items.filter(i => i.checked).map(i => i.id);
-      const { error } = await supabase
+      const { error } = await db
         .from('shopping_items')
         .delete()
         .in('id', checkedIds);
-      if (error) { console.error(error); return; }
+      if (error) { showError(error.message); return; }
       items = items.filter(i => !i.checked);
       render();
     }
