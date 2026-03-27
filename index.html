@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>쇼핑 리스트</title>
+  <title>Daftar Belanja</title>
   <style>
     * {
       box-sizing: border-box;
@@ -206,23 +206,23 @@
 </head>
 <body>
   <div class="container">
-    <h1>쇼핑 리스트</h1>
-    <p class="subtitle">오늘 구매할 항목을 추가하세요</p>
+    <h1>Daftar Belanja</h1>
+    <p class="subtitle">Tambahkan item yang ingin dibeli hari ini</p>
 
     <div class="input-row">
-      <input type="text" id="itemInput" placeholder="아이템 입력..." maxlength="60">
-      <button onclick="addItem()" title="추가">+</button>
+      <input type="text" id="itemInput" placeholder="Masukkan item..." maxlength="60">
+      <button onclick="addItem()" title="Tambah">+</button>
     </div>
 
     <div class="stats">
-      <span id="totalCount">총 0개</span>
-      <span id="checkedCount">완료 0개</span>
+      <span id="totalCount">Total 0 item</span>
+      <span id="checkedCount">Selesai 0 item</span>
     </div>
 
     <ul class="list" id="list"></ul>
 
     <button class="clear-btn" id="clearBtn" onclick="clearChecked()" style="display:none">
-      완료된 항목 삭제
+      Hapus item yang selesai
     </button>
 
     <div class="error-msg" id="errorMsg" style="display:none"></div>
@@ -234,7 +234,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoeGdnZm10aGFoenZhYXBhbmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NDY2ODQsImV4cCI6MjA5MDAyMjY4NH0.elM9a-8g9kXJLtYvqD5TtDAgYXhTMOPe-RYObe4oeP4';
 
     if (!window.supabase) {
-      document.getElementById('errorMsg').textContent = '오류: Supabase 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.';
+      document.getElementById('errorMsg').textContent = 'Error: Gagal memuat library Supabase. Silakan periksa koneksi internet Anda.';
       document.getElementById('errorMsg').style.display = 'block';
       throw new Error('Supabase CDN load failed');
     }
@@ -246,14 +246,14 @@
 
     function showError(msg) {
       const el = document.getElementById('errorMsg');
-      el.textContent = '오류: ' + msg;
+      el.textContent = 'Error: ' + msg;
       el.style.display = 'block';
       setTimeout(() => { el.style.display = 'none'; }, 5000);
     }
 
     async function loadItems() {
       const list = document.getElementById('list');
-      list.innerHTML = '<li style="background:none;border:none;"><div class="loading-msg">불러오는 중...</div></li>';
+      list.innerHTML = '<li style="background:none;border:none;"><div class="loading-msg">Memuat...</div></li>';
       const { data, error } = await db
         .from('shopping_items')
         .select('*')
@@ -270,8 +270,8 @@
       const clearBtn = document.getElementById('clearBtn');
       const checked = items.filter(i => i.checked).length;
 
-      totalCount.textContent = `총 ${items.length}개`;
-      checkedCount.textContent = `완료 ${checked}개`;
+      totalCount.textContent = `Total ${items.length} item`;
+      checkedCount.textContent = `Selesai ${checked} item`;
       clearBtn.style.display = checked > 0 ? 'block' : 'none';
 
       if (items.length === 0) {
@@ -279,7 +279,7 @@
           <li style="background:none;border:none;justify-content:center;">
             <div class="empty">
               <span>🛒</span>
-              아직 추가된 아이템이 없어요
+              Belum ada item yang ditambahkan
             </div>
           </li>`;
         return;
@@ -290,7 +290,7 @@
           <input type="checkbox" ${item.checked ? 'checked' : ''}
             onchange="toggleItem('${item.id}', this.checked)">
           <span class="item-text">${escapeHtml(item.text)}</span>
-          <button class="delete-btn" onclick="deleteItem('${item.id}')" title="삭제">✕</button>
+          <button class="delete-btn" onclick="deleteItem('${item.id}')" title="Hapus">✕</button>
         </li>
       `).join('');
     }
